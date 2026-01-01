@@ -3,13 +3,35 @@ fn main() {
         .nth(1)
         .expect("No firmware filename received");
 
-
     // See `libusb` output in documentation for where these come from
     const USB_VENDOR_ID: u16 = 0x05a9;
-    const USB_PRODUCT_ID: u16 = 0x0580;
+    const USB_PRODUCT_ID_BOOTLOADER: u16 = 0x0580;  // USB Boot mode
+    const USB_PRODUCT_ID_FIRMWARE: u16 = 0x058c;    // USB Camera mode (already programmed)
 
-    let libusb_dev_handle = rusb::open_device_with_vid_pid(USB_VENDOR_ID, USB_PRODUCT_ID)
-        .unwrap();
+    // Try to open device in bootloader mode, or inform if already programmed
+    let libusb_dev_handle = match rusb::open_device_with_vid_pid(USB_VENDOR_ID, USB_PRODUCT_ID_BOOTLOADER) {
+        Some(handle) => {
+            println!("Found device in bootloader mode. Starting firmware upload...");
+            handle
+        }
+        None => {
+            // Check if device is already in camera mode
+            match rusb::open_device_with_vid_pid(USB_VENDOR_ID, USB_PRODUCT_ID_FIRMWARE) {
+                Some(camera_handle) => {
+                    // Explicitly close the device handle before exiting, since process::exit skips Drop
+                    drop(camera_handle);
+                    eprintln!("Camera is already programmed and working (Mode: USB Camera-OV580)");
+                    eprintln!("No firmware update needed.");
+                    std::process::exit(0);
+                }
+                None => {
+                    eprintln!("Error: PS5 Camera not found!");
+                    eprintln!("Expected: VID:PID = 05a9:0580 (bootloader) or 05a9:058c (camera)");
+                    std::process::exit(1);
+                }
+            }
+        }
+    };
 
     // Device only has one USB 'endpoint'/interface (see `lsusb` output)
     const USB_INTERFACE_NUM: u8 = 0;
@@ -104,14 +126,21 @@ fn main() {
     // Again, taken from OrbisEyeCam
     let footer_packet: [u8; 1] = [0x5B];
 
-    libusb_dev_handle
-        .write_control(
-            USB_OUTGOING_PACKET_BM_REQUEST_TYPE,
-            0x0,
-            0x2200,
-            0x8018,
-            &footer_packet,
-            std::time::Duration::ZERO,
-        )
-        .unwrap();
+    match libusb_dev_handle.write_control(
+        USB_OUTGOING_PACKET_BM_REQUEST_TYPE,
+        0x0,
+        0x2200,
+        0x8018,
+        &footer_packet,
+        std::time::Duration::ZERO,
+    ) {
+        Ok(_) => println!("✓ Firmware uploaded successfully!"),
+        Err(rusb::Error::NoDevice) => {
+            println!("✓ Firmware uploaded successfully! Camera is restarting...");
+        }
+        Err(e) => {
+            eprintln!("✗ Error sending final packet: {:?}", e);
+            std::process::exit(1);
+        }
+    }
 }

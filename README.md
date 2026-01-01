@@ -7,10 +7,10 @@
 
 This tool is used to install firmware onto a Playstation camera. The supported models are listed below.
 
-| Model number | Console |
-|--------------|---------|
-| CUH-ZEY1     | [PS4](./docs/ps4-camera-image.jpg)     |
-| CFI-ZEY1     | [PS5](./docs/ps5-camera-image.jpg)     |
+| Model number | Console                            |
+| ------------ | ---------------------------------- |
+| CUH-ZEY1     | [PS4](./docs/ps4-camera-image.jpg) |
+| CFI-ZEY1     | [PS5](./docs/ps5-camera-image.jpg) |
 
 The PlayStation 2 camera (["EyeToy"/SLEH-0003x variants](./docs/ps2-camera-image.jpg)) and PlayStation 3 camera (["PlayStation Eye"/SLEH-00448](.docs/ps3-camera-image.png)) use UVC drivers by default, and do not have the ability to program firmware over USB.
 
@@ -24,8 +24,8 @@ To use this as a webcam, we need to install custom firmware onto the device (the
 
 You can find custom firmware for the Playstation camera on Github, here's a few that I've used:
 
-* <https://github.com/prosperodev/hdcamera/blob/main/firmware/21.01-03.20.00.04-00.00.00.bin>
-* <https://github.com/Hackinside/PS5_camera_files/blob/main/firmware.bin>
+- <https://github.com/prosperodev/hdcamera/blob/main/firmware/21.01-03.20.00.04-00.00.00.bin>
+- <https://github.com/Hackinside/PS5_camera_files/blob/main/firmware.bin>
 
 (Many more firmware versions are available [here](https://github.com/psxdev/luke_firmwares))
 
@@ -72,7 +72,7 @@ $ cargo build --manifest-path=Cargo.toml
 $ ./target/debug/ps5_camera_firmware_loader <firmware-file-path>
 ```
 
-## Success  :heavy_check_mark:
+## Success :heavy_check_mark:
 
 Go back to the dmesg window from earlier. You should see the following line:
 
@@ -86,7 +86,7 @@ To have the firmware automatically installed at startup time, you can use this r
 
 Here's a test image from the PS5 camera:
 
-![test-image](./ps5-camera-test-image.jpg)
+![test-image](./docs/ps5-camera-test-image.jpg)
 
 If you're using the firmware that I linked to above, then these are the formats and parameters it supports:
 
