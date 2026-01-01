@@ -1,1 +1,5 @@
+# PlayStation 5 Camera - Bootloader mode
 SUBSYSTEM=="usb", ATTRS{idVendor}=="05a9", ATTRS{idProduct}=="0580", GROUP="plugdev", MODE="0660"
+
+# PlayStation 5 Camera - Working mode
+SUBSYSTEM=="usb", ATTRS{idVendor}=="05a9", ATTRS{idProduct}=="058c", GROUP="plugdev", MODE="0660"
